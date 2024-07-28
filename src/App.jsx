@@ -92,10 +92,11 @@ function App() {
   };
 
   const handleDragStart = (e, node) => {
-    setDraggedNode(node);
+    setDraggedNode(node); // Sets the dragged node
   };
 
   const handleDrop = (e, targetNode) => {
+    // Moves the dragged node to the target node's children and prints the new JSON structure to the console.
     if (!draggedNode || draggedNode.id === targetNode.id) return;
 
     const newData = moveNode(data, draggedNode, targetNode);
@@ -104,6 +105,7 @@ function App() {
   };
 
   const moveNode = (nodes, nodeToMove, targetNode) => {
+    // Moves a node and its descendants to a new parent node
     const newNodes = JSON.parse(JSON.stringify(nodes)); // Deep copy
     removeNode(newNodes, nodeToMove.id);
     const targetNodeInNewTree = findNodeById(newNodes, targetNode.id);
@@ -115,6 +117,7 @@ function App() {
   };
 
   const removeNode = (nodes, nodeId) => {
+    // Removes a node and its descendants from the tree
     for (let i = 0; i < nodes.length; i++) {
       if (nodes[i].id === nodeId) {
         nodes.splice(i, 1);

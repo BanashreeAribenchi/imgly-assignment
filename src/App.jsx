@@ -7,6 +7,7 @@ function App() {
   const [highlightedNodes, setHighlightedNodes] = useState([]);
   const [leafData, setLeafData] = useState(null); // State to store fetched data for a leaf node
   const [error, setError] = useState(null); // State to hold error message
+  const [draggedNode, setDraggedNode] = useState(null);
 
   useEffect(() => {
     fetch("https://ubique.img.ly/frontend-tha/data.json")
@@ -90,6 +91,48 @@ function App() {
     return descendants;
   };
 
+  const handleDragStart = (e, node) => {
+    setDraggedNode(node);
+  };
+
+  const handleDrop = (e, targetNode) => {
+    if (!draggedNode || draggedNode.id === targetNode.id) return;
+
+    const newData = moveNode(data, draggedNode, targetNode);
+    setData(newData);
+    console.log(JSON.stringify(newData, null, 2));
+  };
+
+  const moveNode = (nodes, nodeToMove, targetNode) => {
+    const newNodes = JSON.parse(JSON.stringify(nodes)); // Deep copy
+    removeNode(newNodes, nodeToMove.id);
+    const targetNodeInNewTree = findNodeById(newNodes, targetNode.id);
+    if (!targetNodeInNewTree.children) {
+      targetNodeInNewTree.children = [];
+    }
+    targetNodeInNewTree.children.push(nodeToMove);
+    return newNodes;
+  };
+
+  const removeNode = (nodes, nodeId) => {
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].id === nodeId) {
+        nodes.splice(i, 1);
+        return true;
+      }
+      if (nodes[i].children) {
+        const foundAndRemoved = removeNode(nodes[i].children, nodeId);
+        if (foundAndRemoved) {
+          if (nodes[i].children.length === 0) {
+            delete nodes[i].children;
+          }
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
   return (
     <>
       <div className="App p-4">
@@ -102,6 +145,10 @@ function App() {
                 node={node}
                 onNodeClick={handleNodeClick}
                 highlightedNodes={highlightedNodes}
+                fetchLeafData={fetchLeafData}
+                onDragStart={handleDragStart}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
               />
             ))}
           </ul>

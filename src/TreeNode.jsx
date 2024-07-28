@@ -1,6 +1,6 @@
 import React from "react";
 
-const TreeNode = ({ node, onNodeClick, highlightedNodes }) => {
+const TreeNode = ({ node, onNodeClick, highlightedNodes, fetchLeafData }) => {
   // Check if the current node is highlighted
   const isHighlighted = highlightedNodes.includes(node.id);
 
@@ -8,6 +8,11 @@ const TreeNode = ({ node, onNodeClick, highlightedNodes }) => {
   const handleClick = (e) => {
     e.stopPropagation(); // Prevent event bubbling
     onNodeClick(node.id);
+
+    // Fetch data if it is a leaf node
+    if (!node.children) {
+      fetchLeafData(node.id);
+    }
   };
 
   return (
@@ -15,15 +20,16 @@ const TreeNode = ({ node, onNodeClick, highlightedNodes }) => {
       className={`ml-4 list-none ${isHighlighted ? "bg-yellow-200" : ""}`}
       onClick={handleClick}
     >
-      {node.label}
+      <span className="cursor-pointer">{node.label}</span>
       {node.children && (
         <ul className="pl-4 border-l border-gray-300">
-          {node.children.map((child, index) => (
+          {node.children.map((child) => (
             <TreeNode
-              key={index}
+              key={child.id}
               node={child}
               onNodeClick={onNodeClick}
               highlightedNodes={highlightedNodes}
+              fetchLeafData={fetchLeafData}
             />
           ))}
         </ul>
